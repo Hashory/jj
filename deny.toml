@@ -230,7 +230,11 @@ unknown-git = "warn"
 # if not specified. If it is specified but empty, no registries are allowed.
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 # List of URLs for allowed Git repositories
-allow-git = []
+allow-git = [
+    # Forks with fixes for long paths on Windows (see `[patch.crates-io]`).
+    "https://github.com/Hashory/gitoxide",
+    "https://github.com/Hashory/tempfile",
+]
 
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for

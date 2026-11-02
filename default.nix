@@ -37,7 +37,12 @@ in
       "^target/"
     ];
 
-    cargoLock.lockFile = ./Cargo.lock;
+    cargoLock = {
+      lockFile = ./Cargo.lock;
+      # Fetch the forked git dependencies (see `[patch.crates-io]` in
+      # Cargo.toml) by the revisions pinned in Cargo.lock.
+      allowBuiltinFetchGit = true;
+    };
     nativeBuildInputs =
       [
         installShellFiles

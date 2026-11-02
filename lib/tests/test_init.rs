@@ -102,6 +102,34 @@ fn test_init_colocated_git(object_hash: gix::hash::Kind) -> TestResult {
     Ok(())
 }
 
+/// Paths longer than MAX_PATH (260) must work on Windows even without a
+/// `longPathAware` manifest, which test binaries don't have.
+#[cfg(windows)]
+#[test_case(gix::hash::Kind::Sha1 ; "sha1")]
+#[test_case(gix::hash::Kind::Sha256; "sha256")]
+fn test_init_colocated_git_long_path(object_hash: gix::hash::Kind) -> TestResult {
+    let settings = testutils::user_settings();
+    let temp_dir = testutils::new_temp_dir();
+    // With a 210-character workspace root, index segments, loose objects and
+    // refs like `.git/refs/jj/keep/<id>` all exceed MAX_PATH.
+    let mut workspace_root = temp_dir.path().to_path_buf();
+    while workspace_root.as_os_str().len() < 210 {
+        let len = (210 - workspace_root.as_os_str().len() - 1).clamp(1, 100);
+        workspace_root.push("a".repeat(len));
+    }
+    std::fs::create_dir_all(&workspace_root)?;
+    let (_workspace, repo) =
+        Workspace::init_colocated_git(&settings, &workspace_root, object_hash).block_on()?;
+
+    let mut tx = repo.start_transaction();
+    write_random_commit(tx.repo_mut());
+    let repo = tx.commit("test").block_on()?;
+    let mut tx = repo.start_transaction();
+    write_random_commit(tx.repo_mut());
+    tx.commit("test").block_on()?;
+    Ok(())
+}
+
 #[test]
 fn test_init_external_git() -> TestResult {
     let settings = testutils::user_settings();

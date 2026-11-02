@@ -194,3 +194,20 @@ opt-level = 3
 [profile.release]
 strip = "debuginfo"
 codegen-units = 1
+
+# Forks with fixes for paths longer than MAX_PATH (260) on Windows. Without a
+# `longPathAware` manifest, Win32 APIs called with non-verbatim (`\?\`) paths
+# reject long paths even if long paths are enabled in the registry.
+[patch.crates-io]
+gix-tempfile = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+# Path dependencies of gix-tempfile in the gitoxide repository. Patch them too,
+# so that a single copy of each crate is used. The branch is based on the
+# gix-v0.88.0 release, so these are identical to the published crates.
+gix-error = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+gix-features = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+gix-fs = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+gix-path = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+gix-trace = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+gix-utils = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+gix-validate = { git = "https://github.com/Hashory/gitoxide", branch = "jj-windows-long-paths" }
+tempfile = { git = "https://github.com/Hashory/tempfile", branch = "jj-windows-long-paths" }

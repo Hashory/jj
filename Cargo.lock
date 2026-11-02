@@ -1619,8 +1619,7 @@ dependencies = [
 [[package]]
 name = "gix-error"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c4a5c4cd326ddfe7f046ad9eed05461c59af6ea98b681648bac73954317addd"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 dependencies = [
  "bstr",
 ]
@@ -1628,8 +1627,7 @@ dependencies = [
 [[package]]
 name = "gix-features"
 version = "0.50.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb3a430dbc02d6c5e30a9f92083459593495ea22a476e837d248b22d800eed80"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 dependencies = [
  "bytes",
  "crc32fast",
@@ -1668,8 +1666,7 @@ dependencies = [
 [[package]]
 name = "gix-fs"
 version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0105ab1cef4542d092c27766d2daf1548fcbad7e460dc2208642c120bb19b3ad"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 dependencies = [
  "bstr",
  "gix-error",
@@ -1879,8 +1876,7 @@ dependencies = [
 [[package]]
 name = "gix-path"
 version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd051ac60c5dbce2228daabf25b6a76408ac732d416c678cfa0a4914d13f60b8"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 dependencies = [
  "bstr",
  "gix-error",
@@ -2065,8 +2061,7 @@ dependencies = [
 [[package]]
 name = "gix-tempfile"
 version = "25.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3dd7dd8df3345933caddd6ce67821c9eec17192564f1011cf0bd0b8cb0d07ffb"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 dependencies = [
  "dashmap",
  "gix-fs",
@@ -2079,8 +2074,7 @@ dependencies = [
 [[package]]
 name = "gix-trace"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df45b2cf6052d9e52681130c17d67505b023e8933ad974f94a2be0b0d24f636a"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 
 [[package]]
 name = "gix-transport"
@@ -2132,8 +2126,7 @@ dependencies = [
 [[package]]
 name = "gix-utils"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70525766f53426ca4cd2ea4d58b0b31488dfedb416b3254e2efdd9dc184cc880"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 dependencies = [
  "bstr",
  "fastrand",
@@ -2144,8 +2137,7 @@ dependencies = [
 [[package]]
 name = "gix-validate"
 version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30574f81fc41b2ca3582ece2bdf8696bdfe9c170aa7e8bcafb81199c86b1ceea"
+source = "git+https://github.com/Hashory/gitoxide?branch=jj-windows-long-paths#d8905cd98b1413d6a00762d5e0223f013a537b7e"
 dependencies = [
  "bstr",
  "gix-error",
@@ -4526,11 +4518,10 @@ dependencies = [
 [[package]]
 name = "tempfile"
 version = "3.27.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
+source = "git+https://github.com/Hashory/tempfile?branch=jj-windows-long-paths#7514fbabe4dd362ffee62d48b44ff4691ffb67a9"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys",
