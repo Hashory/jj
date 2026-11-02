@@ -47,6 +47,21 @@ fn main() {
     } else {
         println!("cargo:rustc-env=JJ_DOCS_DIR=../docs/");
     }
+
+    // Opt in to long paths (> MAX_PATH) on Windows. Without this manifest,
+    // the LongPathsEnabled registry setting is ignored for Win32 APIs called
+    // with plain (non-\\?\) paths, e.g. by the tempfile crate.
+    let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
+    let target_env = std::env::var("CARGO_CFG_TARGET_ENV").unwrap();
+    if target_os == "windows" && target_env == "msvc" {
+        let manifest = Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("jj.manifest");
+        println!("cargo:rerun-if-changed={}", manifest.display());
+        println!("cargo:rustc-link-arg-bins=/MANIFEST:EMBED");
+        println!(
+            "cargo:rustc-link-arg-bins=/MANIFESTINPUT:{}",
+            manifest.display()
+        );
+    }
 }
 
 fn get_git_hash_from_nix() -> Option<String> {

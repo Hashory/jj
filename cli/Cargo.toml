@@ -18,6 +18,7 @@ keywords.workspace = true
 include = [
     "/LICENSE",
     "/build.rs",
+    "/jj.manifest",
     "/examples/",
     "/src/",
     "/docs/**",
