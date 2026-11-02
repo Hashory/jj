@@ -2654,3 +2654,57 @@ fn test_git_fetch_auto_track_bookmarks() {
     [EOF]
     ");
 }
+
+/// Git for Windows rejects a `--git-dir` longer than 220 bytes, and needs
+/// `core.longpaths` to access objects whose paths exceed MAX_PATH (260).
+#[cfg(windows)]
+#[test_case::test_case(215 ; "git dir shorter than git limit")]
+#[test_case::test_case(240 ; "git dir longer than git limit")]
+fn test_git_fetch_and_push_long_git_dir(git_dir_len: usize) {
+    let test_env = TestEnvironment::default();
+    test_env.add_config("remotes.origin.auto-track-bookmarks = '*'");
+    // `<workspace_root>\.git` should be `git_dir_len` characters long.
+    let workspace_root_len = git_dir_len - r"\.git".len();
+    let mut workspace_root = test_env.env_root().join("repo");
+    while workspace_root.as_os_str().len() < workspace_root_len {
+        let len = (workspace_root_len - workspace_root.as_os_str().len() - 1).clamp(1, 100);
+        workspace_root.push("a".repeat(len));
+    }
+    assert_eq!(workspace_root.join(".git").as_os_str().len(), git_dir_len);
+    std::fs::create_dir_all(&workspace_root).unwrap();
+    let workspace_root = workspace_root.to_str().unwrap();
+    test_env
+        .run_jj_in(".", ["git", "init", "--colocate", workspace_root])
+        .success();
+    let work_dir = test_env.work_dir(workspace_root);
+    let remote_repo = init_git_remote(&test_env, "origin");
+    let remote_path = test_env.env_root().join("origin");
+    work_dir
+        .run_jj([
+            "git",
+            "remote",
+            "add",
+            "origin",
+            remote_path.to_str().unwrap(),
+        ])
+        .success();
+
+    work_dir.run_jj(["git", "fetch"]).success();
+    insta::allow_duplicates! {
+        insta::assert_snapshot!(get_bookmark_output(&work_dir), @"
+        origin: qmyrypzk ab8b299e message
+          @git: qmyrypzk ab8b299e message
+          @origin: qmyrypzk ab8b299e message
+        [EOF]
+        ");
+    }
+
+    work_dir.run_jj(["new", "origin"]).success();
+    work_dir.write_file("file", "content");
+    work_dir.run_jj(["commit", "-m", "pushed"]).success();
+    work_dir
+        .run_jj(["bookmark", "create", "pushed", "-r", "@-"])
+        .success();
+    work_dir.run_jj(["git", "push", "-b", "pushed"]).success();
+    assert!(remote_repo.find_reference("refs/heads/pushed").is_ok());
+}

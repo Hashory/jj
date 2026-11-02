@@ -77,6 +77,30 @@ pub enum GitSubprocessError {
     External(String),
 }
 
+/// Returns true if `git_dir` must be passed to git as a relative path.
+///
+/// Git for Windows rejects a `--git-dir` (or `$GIT_DIR`) longer than
+/// `PATH_MAX - 40` bytes, where `PATH_MAX` is 260, with "'$GIT_DIR' too big".
+/// A relative path avoids that limit as long as the git directory can be the
+/// working directory of the process, which `CreateProcessW()` limits to fewer
+/// than `MAX_PATH` (260) characters.
+#[cfg(windows)]
+fn needs_relative_git_dir(git_dir: &Path) -> bool {
+    use std::os::windows::ffi::OsStrExt as _;
+    const GIT_PATH_MAX: usize = 260;
+    const MAX_PATH: usize = 260;
+    // Git checks the length of the UTF-8 string, which matches the length of
+    // the WTF-8 encoded `OsStr` for valid Unicode paths.
+    let git_len = git_dir.as_os_str().len();
+    let utf16_len = git_dir.as_os_str().encode_wide().count();
+    git_len > GIT_PATH_MAX - 40 && utf16_len < MAX_PATH
+}
+
+#[cfg(not(windows))]
+fn needs_relative_git_dir(_git_dir: &Path) -> bool {
+    false
+}
+
 /// Context for creating Git subprocesses
 pub(crate) struct GitSubprocessContext {
     git_dir: PathBuf,
@@ -103,10 +127,6 @@ impl GitSubprocessContext {
         let mut git_cmd = Command::new(&self.options.executable_path);
         suppress_console_window(&mut git_cmd);
 
-        // TODO: here we are passing the full path to the git_dir, which can lead to UNC
-        // bugs in Windows. The ideal way to do this is to pass the workspace
-        // root to Command::current_dir and then pass a relative path to the git
-        // dir
         git_cmd
             // The gitconfig-controlled automated spawning of the macOS `fsmonitor--daemon`
             // can cause strange behavior with certain subprocess operations.
@@ -122,9 +142,24 @@ impl GitSubprocessContext {
             // Avoids an error message when fetching repos with submodules if
             // user has `submodule.recurse` configured to true in their Git
             // config (#7565).
-            .args(["-c", "submodule.recurse=false"])
-            .arg("--git-dir")
-            .arg(&self.git_dir)
+            .args(["-c", "submodule.recurse=false"]);
+        if cfg!(windows) {
+            // Lets Git for Windows access files in the git directory (e.g. loose
+            // objects) whose paths exceed MAX_PATH (260 characters).
+            git_cmd.args(["-c", "core.longpaths=true"]);
+        }
+        // TODO: here we are passing the full path to the git_dir, which can lead to UNC
+        // bugs in Windows. The ideal way to do this is to pass the workspace
+        // root to Command::current_dir and then pass a relative path to the git
+        // dir
+        if needs_relative_git_dir(&self.git_dir) {
+            // Remote URLs and other paths passed to git are absolute, so changing
+            // the working directory doesn't affect how they are resolved.
+            git_cmd.arg("--git-dir=.").current_dir(&self.git_dir);
+        } else {
+            git_cmd.arg("--git-dir").arg(&self.git_dir);
+        }
+        git_cmd
             // Disable translation so we can parse the output. We don't set
             // LC_ALL=C because it would change the encoding. Also note that
             // "C.UTF-8" locale isn't always available.

@@ -973,6 +973,11 @@ fn run_git_gc(program: &OsStr, git_dir: &Path, keep_newer: SystemTime) -> Result
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap_or_default(); // underflow
     let mut git = Command::new(program);
+    if cfg!(windows) {
+        // Lets Git for Windows access files in the git directory (e.g. loose
+        // objects) whose paths exceed MAX_PATH (260 characters).
+        git.args(["-c", "core.longpaths=true"]);
+    }
     git.arg("--git-dir=.") // turn off discovery
         .arg("gc")
         .arg(format!("--prune=@{} +0000", keep_newer.as_secs()));
