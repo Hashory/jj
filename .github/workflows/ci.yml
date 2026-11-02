@@ -1,6 +1,9 @@
 name: ci
 
 on:
+  push:
+    branches:
+      - windows-long-paths
   pull_request:
   merge_group:
 
@@ -9,6 +12,7 @@ concurrency:
     ${{ github.workflow }}-${{
       github.event.pull_request.number
       || github.event.merge_group.head_ref
+      || github.ref
     }}
   cancel-in-progress: true
 

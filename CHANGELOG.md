@@ -18,6 +18,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed bugs
 
+* On Windows, workspaces whose paths exceed `MAX_PATH` (260 characters) are now
+  supported. `jj.exe` now declares `longPathAware` in its application manifest,
+  so the `LongPathsEnabled` registry setting takes effect, and the `tempfile`
+  and `gix-tempfile` dependencies convert long paths to the `\\?\` form.
+  `jj git fetch`/`push` also work with git directories longer than the 220-byte
+  limit of Git for Windows, up to about 250 characters.
+
 ## [0.46.0] - 2026-10-07
 
 ### Release highlights
